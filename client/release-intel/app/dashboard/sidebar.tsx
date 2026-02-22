@@ -7,6 +7,8 @@ import {
   Layers,
   Box,
   Settings,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 const navigation = [
@@ -16,22 +18,46 @@ const navigation = [
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  toggle?: () => void;
+}
+
+export default function Sidebar({ isOpen = true, toggle }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen fixed left-0 top-0 z-10 transition-all duration-300">
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
+    <aside
+      className={`
+        ${isOpen ? 'w-64' : 'w-20'} 
+        bg-white border-r border-slate-200 flex flex-col h-screen fixed left-0 top-0 z-20 
+        transition-all duration-300 ease-in-out
+      `}
+    >
+      <div className="p-4 relative h-full flex flex-col">
+
+        {/* Toggle Button */}
+        <button
+          onClick={toggle}
+          className="absolute -right-3 top-8 bg-white border border-slate-200 rounded-full p-1.5 text-slate-400 hover:text-slate-600 shadow-sm z-50 hover:bg-slate-50 transition-colors"
+        >
+          {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        </button>
+
+        {/* Logo */}
+        <div className={`flex items-center ${isOpen ? 'px-2' : 'justify-center'} mb-10 transition-all duration-300`}>
+          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-5 h-5">
               <path d="M15 6L9 12L15 18" />
             </svg>
           </div>
-          <span className="font-bold text-xl text-slate-800">yourlogo</span>
+          <span className={`font-bold text-xl text-slate-800 ml-3 transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+            yourlogo
+          </span>
         </div>
 
-        <nav className="space-y-1">
+        {/* Navigation */}
+        <nav className="space-y-2 flex-1">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -41,22 +67,26 @@ export default function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group relative
+                  flex items-center ${isOpen ? 'gap-3 px-4' : 'justify-center px-2'} py-3 
+                  rounded-lg transition-all duration-200 group relative
                   ${isActive
                     ? "bg-blue-50/80 text-blue-600 font-medium"
                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}
                 `}
+                title={!isOpen ? item.name : ''}
               >
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full" />
+                {isActive && isOpen && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
                 )}
+
                 <Icon
                   size={20}
-                  className={`
-                    ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}
-                  `}
+                  className={`shrink-0 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`}
                 />
-                {item.name}
+
+                <span className={`whitespace-nowrap transition-all duration-200 ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'}`}>
+                  {item.name}
+                </span>
               </Link>
             );
           })}
